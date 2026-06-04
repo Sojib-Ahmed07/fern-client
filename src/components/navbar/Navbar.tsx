@@ -1,144 +1,239 @@
+"use client";
+
+import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSession, signOut } from "@/lib/auth-client";
+import { useCartStore } from "@/lib/cart-store";
+import {
+  ShoppingCart,
+  Search,
+  User,
+  Menu,
+  X,
+  LogOut,
+  ShoppingBag,
+  Loader2,
+} from "lucide-react";
 
-const Navbar = () => {
+export default function Navbar() {
+  const router = useRouter();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSignOutLoading, setIsSignOutLoading] = useState(false);
+
+  // 🔒 Better Auth থেকে রিয়েল-টাইম সেশন ডাটা নেওয়া
+  const { data: session, isPending } = useSession();
+
+  // 💡 কার্ট কাউন্টার আপাতত স্ট্যাটিক (পরবর্তীতে Zustand/Context দিয়ে ডাইনামিক করা যাবে)
+  const cartItems = useCartStore((state) => state.items);
+  const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+
+  // 🚪 সাইন-আউট হ্যান্ডলার
+  const handleSignOut = async () => {
+    try {
+      setIsSignOutLoading(true);
+      await signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            router.push("/");
+            router.refresh(); // নেভবার স্টেট রিসেট করার জন্য রিফ্রেশ
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Sign out failed", error);
+    } finally {
+      setIsSignOutLoading(false);
+    }
+  };
+
   return (
-    <div className="navbar bg-base-100/80 backdrop-blur-md sticky top-0 z-50 border-b border-base-200 px-4 sm:px-6 lg:px-12 transition-all duration-300">
-      {/* Left: Brand Logo */}
-      <div className="navbar-start">
-        <Link
-          href="/"
-          className="font-serif text-2xl tracking-[0.2em] font-semibold text-neutral hover:opacity-80 transition-opacity"
-        >
-          FERN
-        </Link>
-      </div>
-
-      {/* Center: Navigation Links */}
-      <div className="navbar-center hidden md:flex">
-        <ul className="menu menu-horizontal px-1 gap-8 text-sm font-medium tracking-wide text-base-content/80">
-          <li>
-            <Link
-              href="/all-products"
-              className="hover:text-neutral p-0 bg-transparent active:bg-transparent focus:bg-transparent transition-colors duration-200"
-            >
-              All Products
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/categories"
-              className="hover:text-neutral p-0 bg-transparent active:bg-transparent focus:bg-transparent transition-colors duration-200"
-            >
-              Categories
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/about"
-              className="hover:text-neutral p-0 bg-transparent active:bg-transparent focus:bg-transparent transition-colors duration-200"
-            >
-              About Us
-            </Link>
-          </li>
-        </ul>
-      </div>
-
-      {/* Right: Actions (Cart & Profile) */}
-      <div className="navbar-end gap-3">
-        {/* Shopping Cart */}
-        <div className="dropdown dropdown-end">
-          <div
-            tabIndex={0}
-            role="button"
-            className="btn btn-ghost btn-circle btn-sm hover:bg-base-200 transition-colors"
+    <div className="bg-base-100 shadow-md sticky top-0 z-50">
+      <div className="navbar container mx-auto px-4 md:px-6 min-h-[70px]">
+        {/* 1. Mobile Menu Hamburger (Left) */}
+        <div className="navbar-start lg:hidden w-auto">
+          <button
+            className="btn btn-ghost btn-circle"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            <div className="indicator">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 stroke-[1.5]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
-                />
-              </svg>
-              <span className="badge badge-xs bg-neutral text-neutral-content p-1.5 font-sans border-none scale-90 indicator-item">
-                3
-              </span>
-            </div>
-          </div>
-          <div
-            tabIndex={0}
-            className="card card-compact dropdown-content bg-base-100 z-50 mt-4 w-56 shadow-xl border border-base-200 rounded-xl"
-          >
-            <div className="card-body p-4">
-              <span className="text-sm font-semibold text-base-content/70">
-                3 Items in Bag
-              </span>
-              <span className="text-base font-bold text-neutral">
-                Subtotal: $99.00
-              </span>
-              <div className="card-actions mt-2">
-                <Link
-                  href="/cart"
-                  className="btn btn-neutral btn-block btn-sm rounded-lg capitalize font-medium tracking-wide"
-                >
-                  View Cart
-                </Link>
-              </div>
-            </div>
-          </div>
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
 
-        {/* User Profile */}
-        <div className="dropdown dropdown-end">
-          <div
-            tabIndex={0}
-            role="button"
-            className="btn btn-ghost btn-circle avatar btn-sm ring-1 ring-base-200 ring-offset-2 hover:bg-base-200 transition-all"
+        {/* 2. Logo / Brand Name */}
+        <div className="navbar-start lg:w-auto flex-1 lg:flex-none justify-center lg:justify-start">
+          <Link
+            href="/"
+            className="btn btn-ghost text-xl font-bold tracking-wider text-primary flex items-center gap-2"
           >
-            <div className="w-7 rounded-full">
-              <img
-                alt="User Profile"
-                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-              />
-            </div>
-          </div>
-          <ul
-            tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-xl z-50 mt-4 w-52 p-2 shadow-xl border border-base-200"
-          >
-            <li className="menu-title px-3 py-1 text-xs font-semibold tracking-wider text-base-content/40">
-              My Account
+            <ShoppingBag className="w-6 h-6" />
+            <span>
+              FERN<span className="text-secondary">SHOP</span>
+            </span>
+          </Link>
+        </div>
+
+        {/* 3. Desktop Navigation Links (Center) */}
+        <div className="navbar-center hidden lg:flex">
+          <ul className="menu menu-horizontal px-1 gap-2 font-medium">
+            <li>
+              <Link href="/products">Shop</Link>
             </li>
             <li>
-              <Link href="/profile" className="justify-between rounded-lg py-2">
-                Profile
-                <span className="badge badge-sm bg-base-200 border-none font-medium text-[10px]">
-                  New
-                </span>
-              </Link>
+              <Link href="/categories">Categories</Link>
             </li>
-            <li>
-              <Link href="/settings" className="rounded-lg py-2">
-                Settings
-              </Link>
-            </li>
-            <div className="divider my-1 opacity-50"></div>
-            <li>
-              <button className="rounded-lg py-2 text-error active:bg-error/10 hover:bg-error/10">
-                Logout
-              </button>
-            </li>
+            {session && (
+              <li>
+                <Link href="/orders">My Orders</Link>
+              </li>
+            )}{" "}
+            {/* শুধু লগইন থাকলে দেখাবে */}
           </ul>
         </div>
+
+        {/* 4. Search, Cart & Profile (Right) */}
+        <div className="navbar-end gap-2 w-auto lg:flex-1">
+          {/* Desktop Search Bar */}
+          <div className="form-control hidden md:flex relative max-w-xs w-full mx-2">
+            <input
+              type="text"
+              placeholder="Search products..."
+              className="input input-bordered input-sm rounded-full pl-4 pr-10 w-full focus:input-primary"
+            />
+            <Search className="absolute right-3 top-2.5 text-base-content/50 w-4 h-4 cursor-pointer hover:text-primary" />
+          </div>
+
+          {/* Cart Icon with Badge */}
+          <Link href="/cart" className="btn btn-ghost btn-circle">
+            <div className="indicator">
+              <ShoppingCart className="h-6 w-6" />
+              {cartItemCount > 0 && (
+                <span className="badge badge-sm badge-secondary indicator-item font-bold">
+                  {cartItemCount}
+                </span>
+              )}
+            </div>
+          </Link>
+
+          {/* ⏳ সেশন লোড হওয়ার সময় স্কেলেটন/লোডার ইফেক্ট */}
+          {isPending ? (
+            <div className="w-10 h-10 rounded-full bg-base-300 animate-pulse flex items-center justify-center">
+              <Loader2 className="w-4 h-4 animate-spin text-base-content/40" />
+            </div>
+          ) : session?.user ? (
+            /* 👤 ইউজার লগইন থাকলে: প্রোফাইল ড্রপডাউন */
+            <div className="dropdown dropdown-end">
+              <div
+                tabIndex={0}
+                role="button"
+                className="btn btn-ghost btn-circle avatar border border-base-300"
+              >
+                <div className="w-10 rounded-full flex items-center justify-center bg-neutral text-neutral-content">
+                  {session.user.image ? (
+                    <img
+                      src={session.user.image}
+                      alt={session.user.name}
+                      className="rounded-full"
+                    />
+                  ) : (
+                    <span className="font-bold text-sm uppercase">
+                      {session.user.name?.substring(0, 2)}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <ul
+                tabIndex={0}
+                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow-lg border border-base-200"
+              >
+                <div className="px-4 py-2 font-bold text-xs text-base-content/60 truncate">
+                  Hello, {session.user.name}
+                </div>
+                <hr className="border-base-200 my-1" />
+                <li>
+                  <Link href="/profile">My Profile</Link>
+                </li>
+                <li>
+                  <Link href="/orders">My Orders</Link>
+                </li>
+
+                {/* 🛡️ ইউজার যদি ADMIN হয় তবেই কেবল এই ড্যাশবোর্ড অপশনটি রেন্ডার হবে */}
+                {session.user.role === "ADMIN" && (
+                  <li>
+                    <Link
+                      href="/admin/orders"
+                      className="text-error font-medium"
+                    >
+                      Admin Dashboard
+                    </Link>
+                  </li>
+                )}
+
+                <hr className="border-base-200 my-1" />
+                <li>
+                  <button
+                    onClick={handleSignOut}
+                    className="text-error flex items-center gap-2"
+                    disabled={isSignOutLoading}
+                  >
+                    {isSignOutLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <LogOut size={16} />
+                    )}
+                    Sign Out
+                  </button>
+                </li>
+              </ul>
+            </div>
+          ) : (
+            /* 🔑 ইউজার লগইন না থাকলে: Sign In বাটন */
+            <Link
+              href="/auth/login"
+              className="btn btn-primary btn-sm md:btn-md rounded-full px-6 shadow-sm"
+            >
+              Sign In
+            </Link>
+          )}
+        </div>
       </div>
+
+      {/* 5. Mobile Search & Menu Drawer */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden border-t border-base-200 bg-base-100 p-4 shadow-inner">
+          <div className="form-control relative w-full mb-4">
+            <input
+              type="text"
+              placeholder="Search products..."
+              className="input input-bordered rounded-full pl-4 pr-10 w-full"
+            />
+            <Search className="absolute right-4 top-3.5 text-base-content/50 w-4 h-4" />
+          </div>
+
+          <ul className="menu bg-base-100 w-full rounded-box gap-1 font-medium">
+            <li>
+              <Link href="/products" onClick={() => setIsMobileMenuOpen(false)}>
+                Shop All Products
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/categories"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Categories
+              </Link>
+            </li>
+            {session && (
+              <li>
+                <Link href="/orders" onClick={() => setIsMobileMenuOpen(false)}>
+                  My Orders
+                </Link>
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
     </div>
   );
-};
-
-export default Navbar;
+}
