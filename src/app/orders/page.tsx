@@ -8,7 +8,7 @@ function MyOrdersPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("${process.env.BACKEND_URL}/api/orders/my-orders", {
+    fetch("http://localhost:5000/api/orders/my-orders", {
       credentials: "include",
     })
       .then((res) => res.json())
@@ -27,7 +27,7 @@ function MyOrdersPage() {
 
     try {
       const response = await fetch(
-        `${process.env.BACKEND_URL}/api/orders/${orderId}/status`,
+        `http://localhost:5000/api/orders/${orderId}/status`,
         {
           method: "PATCH",
           headers: {

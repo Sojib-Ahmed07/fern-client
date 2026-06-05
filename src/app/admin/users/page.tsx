@@ -20,7 +20,7 @@ function AdminUsersPage() {
   // 📡 ১. ব্যাকঅ্যান্ড থেকে ইউজার লিস্ট লোড করা
   const fetchUsers = async () => {
     try {
-      const res = await fetch("${process.env.BACKEND_URL}/api/users", {
+      const res = await fetch("http://localhost:5000/api/users", {
         credentials: "include",
       });
       const data = await res.json();
@@ -47,7 +47,7 @@ function AdminUsersPage() {
   const handleRoleChange = async (id: string, newRole: "USER" | "ADMIN") => {
     setUpdatingId(id);
     try {
-      const res = await fetch(`${process.env.BACKEND_URL}/api/users/${id}/role`, {
+      const res = await fetch(`http://localhost:5000/api/users/${id}/role`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -82,7 +82,7 @@ function AdminUsersPage() {
       return;
 
     try {
-      const res = await fetch(`${process.env.BACKEND_URL}/api/users/${id}`, {
+      const res = await fetch(`http://localhost:5000/api/users/${id}`, {
         method: "DELETE",
         credentials: "include",
       });

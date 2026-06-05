@@ -21,7 +21,7 @@ export async function fetchAllProducts({
     });
 
     const res = await fetch(
-      `${process.env.BACKEND_URL}/api/products?${query.toString()}`,
+      `http://localhost:5000/api/products?${query.toString()}`,
       {
         method: "GET",
         headers: {
@@ -50,7 +50,7 @@ export async function fetchAllProducts({
 export async function fetchProductDetails(id: string) {
   try {
     const res = await fetch(
-      `${process.env.BACKEND_URL}/api/products/${id}/details`,
+      `http://localhost:5000/api/products/${id}/details`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
@@ -72,7 +72,7 @@ export async function postProductComment(commentData: {
   rating: number;
 }) {
   try {
-    const res = await fetch(`${process.env.BACKEND_URL}/api/comments`, {
+    const res = await fetch(`http://localhost:5000/api/comments`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -64,7 +64,7 @@ export default function Navbar() {
     const delayDebounceFn = setTimeout(async () => {
       try {
         const res = await fetch(
-          `${process.env.BACKEND_URL}/api/products?search=${encodeURIComponent(searchQuery)}&limit=5`,
+          `http://localhost:5000/api/products?search=${encodeURIComponent(searchQuery)}&limit=5`,
         );
         const data = await res.json();
         if (data.success) {

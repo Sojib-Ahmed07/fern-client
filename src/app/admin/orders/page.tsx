@@ -17,7 +17,7 @@ function AdminOrdersPage() {
 
   // 🔄 ১. সমস্ত কাস্টমারের অর্ডার লোড করা
   useEffect(() => {
-    fetch("${process.env.BACKEND_URL}/api/admin/orders", {
+    fetch("http://localhost:5000/api/admin/orders", {
       credentials: "include", // অ্যাডমিন কুকি সেশন পাস করার জন্য
     })
       .then((res) => res.json())
@@ -37,7 +37,7 @@ function AdminOrdersPage() {
     setUpdatingId(orderId);
     try {
       const response = await fetch(
-        `${process.env.BACKEND_URL}/api/admin/orders/${orderId}/status`,
+        `http://localhost:5000/api/admin/orders/${orderId}/status`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },

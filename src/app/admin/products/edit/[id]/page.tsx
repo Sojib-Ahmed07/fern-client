@@ -42,7 +42,7 @@ export default function EditProductPage({ params }: EditProductProps) {
     const fetchProductDetails = async () => {
       try {
         const res = await fetch(
-          `${process.env.BACKEND_URL}/api/products/${productId}`,
+          `http://localhost:5000/api/products/${productId}`,
           {
             credentials: "include",
           },
@@ -118,7 +118,7 @@ export default function EditProductPage({ params }: EditProductProps) {
       }
 
       const response = await fetch(
-        `${process.env.BACKEND_URL}/api/products/${productId}`,
+        `http://localhost:5000/api/products/${productId}`,
         {
           method: "PATCH", // ব্যাকঅ্যান্ডের আপডেটের জন্য PATCH মেথড
           credentials: "include",

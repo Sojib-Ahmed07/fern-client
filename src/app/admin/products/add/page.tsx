@@ -67,7 +67,7 @@ function AddProductPage() {
       dataToSend.append("category", formData.category);
       dataToSend.append("image", imageFile); // 'image' কি-টি ব্যাকঅ্যান্ডের upload.single("image") এর সাথে মিলতে হবে
 
-      const response = await fetch("${process.env.BACKEND_URL}/api/products", {
+      const response = await fetch("http://localhost:5000/api/products", {
         method: "POST",
         credentials: "include", // কুকি সেশন পাস করার জন্য
         body: dataToSend, // ⚠️ এখানে Headers-এ Content-Type দেওয়ার প্রয়োজন নেই, ব্রাউজার নিজেই FormData-এর জন্য বাউন্ডারি সেট করে নেবে।

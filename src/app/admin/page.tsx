@@ -27,7 +27,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("${process.env.BACKEND_URL}/api/admin/dashboard-stats", {
+    fetch("http://localhost:5000/api/admin/dashboard-stats", {
       credentials: "include",
     })
       .then((res) => res.json())
