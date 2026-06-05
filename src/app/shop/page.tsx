@@ -18,13 +18,13 @@ function ShopContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // ইউআরএল থেকে কারেন্ট ক্যাটাগরি এবং পেজ নাম্বার রিড করা
+  // ইউআরএল থেকে কারেন্ট ক্যাটাগরি, পেজ নাম্বার এবং সার্চ কুয়েরি রিড করা
   const currentCategory = searchParams.get("category") || "All";
   const currentPage = searchParams.get("page") || "1";
   const currentSearch = searchParams.get("search") || "";
 
   const [products, setProducts] = useState<Product[]>([]);
-  const [totalPages, setTotalPages] = useState(1); // 📄 পেজিনেশন ট্র্যাকিং স্টেট
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
 
   const categories = [
@@ -36,43 +36,56 @@ function ShopContent() {
   ];
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchFilteredProducts = async () => {
       setLoading(true);
       try {
-        // 🚀 এপিআই রিকোয়েস্টে ক্যাটাগরি, পেজ এবং সার্চ কিওয়ার্ড ৩টিই একসাথে যাচ্ছে!
         const res = await fetch(
-          `http://localhost:5000/api/products?category=${currentCategory}&page=${currentPage}&search=${currentSearch}&limit=12`,
+          `http://localhost:5000/api/products?category=${currentCategory}&page=${currentPage}&search=${encodeURIComponent(currentSearch)}&limit=12`,
         );
         const data = await res.json();
-        if (data.success) {
+        if (data.success && isMounted) {
           setProducts(data.products || []);
           setTotalPages(data.meta?.totalPages || 1);
         }
       } catch (error) {
         console.error("Error filtering products:", error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchFilteredProducts();
+
+    return () => {
+      isMounted = false;
+    };
   }, [currentCategory, currentPage, currentSearch]);
 
-  // 🔄 ক্যাটাগরি সুইচ করার হ্যান্ডলার (নতুন ক্যাটাগরিতে গেলে পেজ নাম্বার সবসময় ১ এ রিসেট হবে)
+  // 🔄 ক্যাটাগরি সুইচ করার হ্যান্ডলার (সার্চ কুয়েরি বজায় রাখবে)
   const handleCategoryChange = (category: string) => {
+    const searchPart = currentSearch
+      ? `&search=${encodeURIComponent(currentSearch)}`
+      : "";
     if (category === "All") {
-      router.push("/shop?page=1");
+      router.push(`/shop?page=1${searchPart}`);
     } else {
-      router.push(`/shop?category=${category}&page=1`);
+      router.push(`/shop?category=${category}&page=1${searchPart}`);
     }
   };
 
-  // 📄 পেজ চেঞ্জ করার হ্যান্ডলার
+  // 📄 পেজ চেঞ্জ করার হ্যান্ডলার (ক্যাটাগরি ও সার্চ কুয়েরি দুইটাই ধরে রাখবে)
   const handlePageChange = (page: number) => {
+    const searchPart = currentSearch
+      ? `&search=${encodeURIComponent(currentSearch)}`
+      : "";
     if (currentCategory === "All") {
-      router.push(`/shop?page=${page}`);
+      router.push(`/shop?page=${page}${searchPart}`);
     } else {
-      router.push(`/shop?category=${currentCategory}&page=${page}`);
+      router.push(
+        `/shop?category=${currentCategory}&page=${page}${searchPart}`,
+      );
     }
   };
 
@@ -83,6 +96,11 @@ function ShopContent() {
         <h1 className="text-3xl font-bold text-base-content flex items-center gap-2">
           <SlidersHorizontal className="text-primary" size={24} /> Marketplace
         </h1>
+        {currentSearch && (
+          <p className="text-sm text-primary font-medium mt-1">
+            Showing results for: {currentSearch}
+          </p>
+        )}
         <p className="text-xs text-base-content/60 mt-1">
           Explore our products or filter by your favorite category.
         </p>
@@ -108,7 +126,7 @@ function ShopContent() {
       {/* 🛍️ প্রোডাক্ট গ্রিড ডিসপ্লে */}
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, idx) => (
+          {[...Array(8)].map((_, idx) => (
             <div key={idx} className="flex flex-col gap-3 w-full">
               <div className="skeleton h-52 w-full rounded-2xl"></div>
               <div className="skeleton h-4 w-28"></div>
@@ -147,8 +165,9 @@ function ShopContent() {
                     </span>
                   )}
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    {/* 🔗 ফিক্সড: /products/ পাথ আপডেট করা হয়েছে */}
                     <Link
-                      href={`/product/${product.id}`}
+                      href={`/products/${product.id}`}
                       className="btn btn-circle btn-sm bg-base-100 text-base-content border-none shadow"
                     >
                       <Eye size={16} />
@@ -162,8 +181,9 @@ function ShopContent() {
                     <span className="text-[10px] uppercase font-bold text-base-content/40 block mb-1">
                       {product.category}
                     </span>
+                    {/* 🔗 ফিক্সড: /products/ পাথ আপডেট করা হয়েছে */}
                     <Link
-                      href={`/product/${product.id}`}
+                      href={`/products/${product.id}`}
                       className="font-semibold text-sm hover:text-primary line-clamp-2 leading-snug"
                     >
                       {product.name}
@@ -186,7 +206,7 @@ function ShopContent() {
             ))}
           </div>
 
-          {/* 📄 ডাইনামিক পেজ কন্ট্রোলার বাটন (DaisyUI Pagination) */}
+          {/* 📄 পেজিনেশন */}
           {totalPages > 1 && (
             <div className="flex justify-center mt-12">
               <div className="join border border-base-300 bg-base-100 p-1 rounded-xl shadow-sm">

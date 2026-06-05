@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signUp } from "@/lib/auth-client";
 import { User, Mail, Lock, Loader2 } from "lucide-react";
-import GoogleLoginButton from "@/components/buttons/GoogleLoginButton"; // ✨ গুগল বাডার ইম্পোর্ট
+import GoogleLoginButton from "@/components/buttons/GoogleLoginButton";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -25,20 +25,22 @@ export default function SignUpPage() {
           email,
           password,
           name,
-          callbackURL: "/auth/signin", // ভেরিফিকেশন শেষে বা লগইনের জন্য রিডাইরেক্ট পাথ
+          callbackURL: "/", // ✨ ফিক্সড: সাকসেসফুল রেজিস্ট্রেশন ও অটো-লগইনের পর হোমপেজে নিয়ে যাবে
         },
         {
-          onRequest: () => setLoading(true), // ✨ Better Auth লোডিং শুরু করবে
+          onRequest: () => setLoading(true),
           onError: (ctx) => {
             setError(ctx.error.message || "Something went wrong.");
             setLoading(false);
           },
           onSuccess: () => {
             setLoading(false);
+            // 💡 Better Auth অলরেডি ব্যাকঅ্যান্ডে ইউজার তৈরি করে লগইন সেশন চালু করে দিয়েছে
             alert(
-              "Registration successful! 🎉 Please check your email to verify your account before logging in.",
+              "Registration successful! 🎉 Welcome to FERN_SHOP. We've sent a verification link to your email, please verify it when you can.",
             );
-            router.push("/auth/signin"); // সাইন-ইন পেজে পাঠানো হচ্ছে
+            router.push("/"); // 🚀 ফিক্সড: সরাসরি হোমপেজে রিডাইরেক্ট (ম্যানুয়াল লগইনের ঝামেলা নেই)
+            router.refresh(); // নেভবার ও সেশন স্টেট আপডেট করার জন্য
           },
         },
       );
@@ -133,18 +135,19 @@ export default function SignUpPage() {
             </button>
           </form>
 
-          {/* ✨ ইমেইল সাইন-আপ এবং গুগলের মাঝখানে ডিভাইডার */}
+          {/* ডিভাইডার */}
           <div className="divider my-4 text-xs uppercase text-base-content/40 tracking-wider font-semibold">
             OR
           </div>
 
-          {/* ✨ ওয়ান-ক্লিক গুগল সাইন-আপ বাটন */}
+          {/* ওয়ান-ক্লিক গুগল সাইন-আপ বাটন */}
           <GoogleLoginButton />
 
           <div className="text-center text-sm mt-6 text-base-content/80">
             Already have an account?{" "}
+            {/* 🔗 ফিক্সড লিংক: আপনার প্রজেক্টের মূল লগইন রাউট /auth/login এ ম্যাপ করা হয়েছে */}
             <Link
-              href="/auth/signin"
+              href="/auth/login"
               className="link link-primary font-semibold"
             >
               Sign In

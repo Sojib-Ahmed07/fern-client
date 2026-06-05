@@ -106,7 +106,7 @@ export default function Navbar() {
 
   // 🛒 সাজেশন আইটেমে ক্লিক হ্যান্ডলার
   const handleSuggestionClick = (productId: string) => {
-    router.push(`/product/${productId}`);
+    router.push(`/products/${productId}`);
     setShowDropdown(false);
     setSearchQuery(""); // ক্লিয়ার ইনপুট
   };
@@ -284,9 +284,6 @@ export default function Navbar() {
                   Hello, {session.user.name}
                 </div>
                 <hr className="border-base-200 my-1" />
-                <li>
-                  <Link href="/profile">My Profile</Link>
-                </li>
                 <li>
                   <Link href="/orders">My Orders</Link>
                 </li>

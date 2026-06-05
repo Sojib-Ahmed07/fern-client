@@ -82,7 +82,16 @@ export default function SignInPage() {
 
             {/* Password */}
             <div className="form-control">
-              <label className="label-text font-medium mb-1">Password</label>
+              <div className="flex justify-between items-center mb-1">
+                <label className="label-text font-medium">Password</label>
+                {/* ✨ নতুন সংযোজন: Forgot Password লিংক */}
+                <Link
+                  href="/auth/forget-password"
+                  className="text-xs link link-primary font-semibold hover:underline"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
               <div className="relative">
                 <input
                   type="password"
