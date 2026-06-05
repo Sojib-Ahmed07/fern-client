@@ -30,7 +30,7 @@ export default function HomePage() {
   useEffect(() => {
     const fetchTrendingProducts = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/products"); // আপনার পাবলিক প্রোডাক্ট এপিআই
+        const res = await fetch("${process.env.BACKEND_URL}/api/products"); // আপনার পাবলিক প্রোডাক্ট এপিআই
         const data = await res.json();
         if (data.success) {
           // হোমপেজে দেখানোর জন্য প্রথম ৮টি প্রোডাক্ট নেওয়া হলো

@@ -50,7 +50,7 @@ export default function CheckoutPage() {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/orders/checkout", {
+      const res = await fetch("${process.env.BACKEND_URL}/api/orders/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // 🔒 সেশন কুকি ব্যাকঅ্যান্ড মিডলওয়্যারে পাস করার জন্য ক্রেডেনশিয়ালস অন্তর্ভুক্ত করা হলো

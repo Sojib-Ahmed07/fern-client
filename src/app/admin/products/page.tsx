@@ -21,7 +21,7 @@ export default function AdminProductsPage() {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const res = await fetch("http://localhost:5000/api/products", {
+        const res = await fetch("${process.env.BACKEND_URL}/api/products", {
           credentials: "include", // সেশন কুকি পাস করার জন্য
         });
         const data = await res.json();
@@ -45,7 +45,7 @@ export default function AdminProductsPage() {
     if (!confirm("Are you sure you want to delete this product? ⚠️")) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+      const res = await fetch(`${process.env.BACKEND_URL}/api/products/${id}`, {
         method: "DELETE",
         credentials: "include",
       });

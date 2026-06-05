@@ -42,7 +42,7 @@ function ShopContent() {
       setLoading(true);
       try {
         const res = await fetch(
-          `http://localhost:5000/api/products?category=${currentCategory}&page=${currentPage}&search=${encodeURIComponent(currentSearch)}&limit=12`,
+          `${process.env.BACKEND_URL}/api/products?category=${currentCategory}&page=${currentPage}&search=${encodeURIComponent(currentSearch)}&limit=12`,
         );
         const data = await res.json();
         if (data.success && isMounted) {
